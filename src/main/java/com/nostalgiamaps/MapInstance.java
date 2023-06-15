@@ -36,8 +36,8 @@ public class MapInstance {
 
         if (loadOnStartup) {
             this.loadStatus = LoadStatus.LOADED;
+            return;
         }
-
         if (loadImmediately) load();
     }
 

@@ -1,5 +1,6 @@
 package com.nostalgiamaps;
 
+import com.nostalgiamaps.events.onJoinEvent;
 import com.nostalgiamaps.manager.ConfigManager;
 import com.nostalgiamaps.manager.MapsManager;
 import org.bukkit.Bukkit;
@@ -18,7 +19,7 @@ public final class NostalgiaMaps extends JavaPlugin {
         System.out.println("Start Loading NostalgiaMaps../n");
         config = new ConfigManager();
         mapsManager = new MapsManager();
-        Bukkit.getServer().getPluginManager().registerEvents(new Events(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
         System.out.println("NostalgiaMaps has loaded!");
     }
 

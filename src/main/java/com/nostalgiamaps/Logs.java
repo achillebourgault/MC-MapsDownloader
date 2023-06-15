@@ -30,6 +30,7 @@ public class Logs {
                     sendMessage(Bukkit.getPlayer(playerNameIfExact[0]), message, type);
                     break;
                 case OPS:
+                    System.out.println(message);
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.isOp())
                             sendMessage(player, message, type);
