@@ -15,7 +15,8 @@ public class Logs {
     public static enum LogPrivilege {
         LAMBDA_PLAYER,
         EXACT_PLAYER,
-        OPS
+        OPS,
+        CONSOLE
     }
 
     static String prefix = "§8[§6NostalgiaMaps§8] §7";
@@ -30,11 +31,14 @@ public class Logs {
                     sendMessage(Bukkit.getPlayer(playerNameIfExact[0]), message, type);
                     break;
                 case OPS:
-                    System.out.println(message);
+                    System.out.println(ChatColor.stripColor(message));
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.isOp())
                             sendMessage(player, message, type);
                     }
+                    break;
+                case CONSOLE:
+                    System.out.println(ChatColor.stripColor(message));
                     break;
         }
     }

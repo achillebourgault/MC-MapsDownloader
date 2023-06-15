@@ -28,52 +28,46 @@ public class MapInstance {
 
     private LoadStatus loadStatus;
     private String mapName = null;
-    private final String mapDisplayName;
+    private String mapDisplayName = null;
     private String mapUrl;
     private boolean loadImmediately;
 
-    public MapInstance(String mapDisplayName, String mapUrl, boolean loadImmediately, boolean loadOnStartup) {
+    public MapInstance(String mapUrl, boolean loadImmediately) {
         this.loadStatus = LoadStatus.READY_TO_LOAD;
-        this.mapDisplayName = mapDisplayName;
         this.mapUrl = mapUrl;
         this.loadImmediately = loadImmediately;
 
-        if (loadOnStartup) {
-            this.loadStatus = LoadStatus.LOADED;
-            return;
-        }
         if (loadImmediately) load();
     }
 
     public void load() {
         if (this.loadStatus != LoadStatus.READY_TO_LOAD) return;
+
         this.loadStatus = LoadStatus.LOADING;
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                try {
-                    // Téléchargement de la carte
-                    URL url = new URL(mapUrl);
-                    try (BufferedInputStream in = new BufferedInputStream(url.openStream())) {
-                        // Création d'un fichier temporaire pour stocker l'archive zip
-                        File tempFile = File.createTempFile("map", ".zip");
-                        tempFile.deleteOnExit();
+        Logs.send("Loading map from url: " + mapUrl, Logs.LogType.INFO, Logs.LogPrivilege.LAMBDA_PLAYER);
+        Logs.send("Loading map from url: " + mapUrl, Logs.LogType.INFO, Logs.LogPrivilege.CONSOLE);
 
-                        // Copie du contenu téléchargé dans le fichier temporaire
-                        Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Bukkit.getScheduler().runTask(NostalgiaMaps.getInstance(), () -> {
+            try {
+                URL url = new URL(mapUrl);
+                mapDisplayName = url.getFile().substring(url.getFile().lastIndexOf('/') + 1);
+                try (BufferedInputStream in = new BufferedInputStream(url.openStream())) {
+                    File tempFile = File.createTempFile("map", ".zip");
+                    tempFile.deleteOnExit();
 
-                        // Extraction de l'archive zip
-                        extractZip(tempFile);
-                        createWorld();
-                    } catch (IOException e) {
-                        Logs.send("Error while downloading map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                        Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                    }
+                    // Copie du contenu téléchargé dans le fichier temporaire
+                    Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                    extractZip(tempFile);
+                    createWorld();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Logs.send("Error while downloading map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
+                    Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }.runTaskAsynchronously(NostalgiaMaps.getInstance());
+        });
     }
 
     private void extractZip(File zipFile) {

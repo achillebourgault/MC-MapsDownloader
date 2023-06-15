@@ -6,6 +6,7 @@ import com.nostalgiamaps.utils.Item;
 import com.nostalgiamaps.utils.Static;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
@@ -19,7 +20,7 @@ public class InventoryManager {
 
     public InventoryManager() {
         initMapInventory();
-        registerAsyncMapEvents();
+        registerAsyncInventoryTask();
     }
 
     private void initMapInventory() {
@@ -35,7 +36,7 @@ public class InventoryManager {
         }
     }
 
-    private void registerAsyncMapEvents() {
+    private void registerAsyncInventoryTask() {
         inventoryTask = Bukkit.getScheduler().runTaskTimer(NostalgiaMaps.getInstance(), () -> {
             Inventory currentInventory = NostalgiaMaps.getInstance().getInventoryManager().getMapsInventory();
             ArrayList<MapInstance> mapPool = NostalgiaMaps.getInstance().getMapsManager().getMapsPool();
@@ -56,13 +57,15 @@ public class InventoryManager {
                     if (i % rowLength == 0 && i != 0) startIndex += 9;
                 }
 
-                currentInventory.setItem(49, Item.createItem("§7Current map: §f§l#"+id+" §e"+NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName(),
+                currentInventory.setItem(41, Item.createItem("§7Current map: §f§l#"+id+" §e"+NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName(),
                         id, Material.FILLED_MAP));
+                currentInventory.setItem(49, Item.createItem("§cExit", 1, Material.BARRIER));
             }
         }, 0, 10);
     }
 
     public void openMapsInventory(Player p) {
+        p.playSound(p.getLocation(), Sound.ENTITY_SHULKER_OPEN, 1, 1);
         p.openInventory(mapsInventory);
     }
 

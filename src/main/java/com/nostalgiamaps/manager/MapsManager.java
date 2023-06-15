@@ -41,4 +41,12 @@ public class MapsManager {
     public MapInstance getCurrentMap() {
         return currentMap;
     }
+
+    public MapInstance getMapByName(String mapName) {
+        for (MapInstance map : mapsPool) {
+            if (map.getName().equals(mapName))
+                return map;
+        }
+        return null;
+    }
 }

@@ -1,5 +1,6 @@
 package com.nostalgiamaps;
 
+import com.nostalgiamaps.commands.MapsCommand;
 import com.nostalgiamaps.events.PlayerDamageEvent;
 import com.nostalgiamaps.events.onInteractInventoryEvent;
 import com.nostalgiamaps.events.onJoinEvent;
@@ -8,6 +9,8 @@ import com.nostalgiamaps.manager.InventoryManager;
 import com.nostalgiamaps.manager.MapsManager;
 
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Objects;
 
 public final class NostalgiaMaps extends JavaPlugin {
 
@@ -28,6 +31,7 @@ public final class NostalgiaMaps extends JavaPlugin {
     }
 
     private void registerEvents() {
+        Objects.requireNonNull(getCommand("maps")).setExecutor(new MapsCommand());
         getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
         getServer().getPluginManager().registerEvents(new onInteractInventoryEvent(), this);
         getServer().getPluginManager().registerEvents(new PlayerDamageEvent(), this);
