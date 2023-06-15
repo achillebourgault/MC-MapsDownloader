@@ -1,6 +1,6 @@
 package com.nostalgiamaps.events;
 
-import com.nostalgiamaps.Logs;
+import com.nostalgiamaps.utils.Logs;
 import com.nostalgiamaps.MapInstance;
 import com.nostalgiamaps.NostalgiaMaps;
 import net.md_5.bungee.api.chat.ComponentBuilder;

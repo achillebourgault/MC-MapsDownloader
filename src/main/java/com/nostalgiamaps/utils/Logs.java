@@ -1,4 +1,4 @@
-package com.nostalgiamaps;
+package com.nostalgiamaps.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
