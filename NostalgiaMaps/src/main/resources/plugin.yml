@@ -1,0 +1,4 @@
+name: NostalgiaMaps
+version: '${project.version}'
+main: com.nostalgiamaps.NostalgiaMaps
+api-version: 1.20
