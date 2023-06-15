@@ -18,9 +18,9 @@ public class Logs {
         OPS
     }
 
-    String prefix = "§8[§6NostalgiaMaps§8] §7";
+    static String prefix = "§8[§6NostalgiaMaps§8] §7";
 
-    public void send(String message, LogType type, LogPrivilege privilege, String... playerNameIfExact) {
+    public static void send(String message, LogType type, LogPrivilege privilege, String... playerNameIfExact) {
         switch (privilege) {
             case LAMBDA_PLAYER:
                 for (Player player : Bukkit.getOnlinePlayers())
@@ -38,11 +38,11 @@ public class Logs {
         }
     }
 
-    public void sendMessage(Player player, String message, LogType type) {
+    public static void sendMessage(Player player, String message, LogType type) {
         switch (type) {
             default:
             case INFO:
-                player.sendMessage(prefix + message);
+                player.sendMessage(prefix + ChatColor.GRAY + message);
                 break;
             case WARNING:
                 player.sendMessage(prefix + ChatColor.YELLOW + message);

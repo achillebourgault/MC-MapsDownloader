@@ -1,6 +1,7 @@
 package com.nostalgiamaps;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.BufferedInputStream;
@@ -14,25 +15,35 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class Map {
+public class MapInstance {
 
-    private boolean isLoaded;
+    public enum LoadStatus {
+        READY_TO_LOAD,
+        LOADING,
+        LOADED,
+        ERROR
+    }
+
+    private LoadStatus loadStatus;
     private String mapName;
+    private final String mapDisplayName;
     private String mapUrl;
 
-    public Map(String mapName, String mapUrl, boolean loadImmediately) {
-        this.isLoaded = false;
-        this.mapName = mapName;
+    public MapInstance(String mapDisplayName, String mapUrl, boolean loadImmediately, boolean loadOnStartup) {
+        this.loadStatus = LoadStatus.READY_TO_LOAD;
+        this.mapDisplayName = mapDisplayName;
         this.mapUrl = mapUrl;
+
+        if (loadOnStartup) {
+            this.loadStatus = LoadStatus.LOADED;
+        }
 
         if (loadImmediately) load();
     }
 
-    public void load() {
-        // Fetch map from URL and load it into server
-    }
-
-    private void downloadAndExtractMap() {
+    private void load() {
+        if (this.loadStatus != LoadStatus.READY_TO_LOAD) return;
+        this.loadStatus = LoadStatus.LOADING;
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -62,28 +73,49 @@ public class Map {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
-                    // Génération d'un nouveau nom UUID pour le dossier de la carte
                     String newDirectoryName = UUID.randomUUID().toString();
-
-                    // Création du dossier principal du serveur Minecraft s'il n'existe pas
                     File serverDirectory = new File("./");
+
                     if (!serverDirectory.exists())
-                        serverDirectory.mkdirs();
+                        Logs.send("Error while retrieving server directory", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
 
-                    // Création du dossier de la carte dans le répertoire principal du serveur
                     File mapDirectory = new File(serverDirectory, newDirectoryName);
-                    if (mapDirectory.mkdir() != true)
-
-                    mapDirectory.mkdir();
+                    if (!mapDirectory.mkdir())
+                        Logs.send("Error while creating map directory", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
 
                     // Copie des fichiers extraits dans le dossier de la carte
                     Path outputPath = mapDirectory.toPath().resolve(entry.getName());
                     Files.copy(zipInputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
+                    this.mapName = entry.getName();
+                    this.loadStatus = LoadStatus.LOADED;
+                    Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
                 }
                 zipInputStream.closeEntry();
             }
         } catch (IOException e) {
+            this.loadStatus = LoadStatus.ERROR;
+            Logs.send("Error while extracting map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
             e.printStackTrace();
         }
+    }
+
+    public LoadStatus getLoadStatus() {
+        return loadStatus;
+    }
+
+    public String getName() {
+        return mapName;
+    }
+
+    public String getDisplayName() {
+        return mapDisplayName;
+    }
+
+    public String getUrl() {
+        return mapUrl;
+    }
+
+    public World getWorld() {
+        return Bukkit.getWorld(mapName);
     }
 }
