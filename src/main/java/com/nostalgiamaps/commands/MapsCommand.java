@@ -10,8 +10,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 
 public class MapsCommand implements CommandExecutor {
 
@@ -74,5 +77,18 @@ public class MapsCommand implements CommandExecutor {
             }
         }
         return true;
+    }
+
+    public static TabCompleter getTabCompleter() {
+        return (sender, cmd, alias, args) -> {
+            if (args.length == 1) {
+                return Arrays.asList("add", "remove", "info");
+            } else if (args.length == 3) {
+                if (args[0].equalsIgnoreCase("add")) {
+                    return Arrays.asList("true", "false");
+                }
+            }
+            return null;
+        };
     }
 }

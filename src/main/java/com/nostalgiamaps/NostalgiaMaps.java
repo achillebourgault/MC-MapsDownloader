@@ -32,6 +32,8 @@ public final class NostalgiaMaps extends JavaPlugin {
 
     private void registerEvents() {
         Objects.requireNonNull(getCommand("maps")).setExecutor(new MapsCommand());
+        Objects.requireNonNull(getCommand("maps")).setTabCompleter(MapsCommand.getTabCompleter());
+
         getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
         getServer().getPluginManager().registerEvents(new onInteractInventoryEvent(), this);
         getServer().getPluginManager().registerEvents(new PlayerDamageEvent(), this);
