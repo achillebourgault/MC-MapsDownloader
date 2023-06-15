@@ -6,13 +6,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-public class InteractEvent implements Listener {
+public class onInteractInventoryEvent implements Listener {
 
     @EventHandler // Maps Selector Inventory
     public void onPlayerInteractInventory(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
 
-        if (!e.getView().getTitle().equals(Static.InventoryMapsName))
+        if (!e.getView().getOriginalTitle().equals(Static.InventoryMapsName))
             return;
         e.setCancelled(true);
 
