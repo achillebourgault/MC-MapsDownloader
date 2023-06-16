@@ -6,16 +6,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Item {
 
-    public static ItemStack createItem(String name, int amount, Material material, String... lore) {
+    public static ItemStack createItem(String name, int amount, Material material, List<String> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         item.setAmount(amount);
         meta.setDisplayName(name);
-        meta.setLore(Arrays.asList(lore));
+        meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
