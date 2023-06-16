@@ -48,7 +48,7 @@ public class InventoryManager {
         inventoryTask = Bukkit.getScheduler().runTaskTimer(NostalgiaMaps.getInstance(), () -> {
             Inventory currentInventory = NostalgiaMaps.getInstance().getInventoryManager().getMapsInventory();
             ArrayList<MapInstance> mapsPool = NostalgiaMaps.getInstance().getMapsManager().getMapsPool();
-            boolean isMapPoolEmpty = mapsPool.isEmpty();
+            boolean isMapPoolEmpty = mapsPool.isEmpty() || mapsPool.stream().noneMatch(map -> map.getLoadStatus().equals(MapInstance.LoadStatus.LOADED));
 
             if (isMapPoolEmpty) {
                 currentInventory.setItem(22, Item.createItem("§cNo maps available. Click below to add one.",

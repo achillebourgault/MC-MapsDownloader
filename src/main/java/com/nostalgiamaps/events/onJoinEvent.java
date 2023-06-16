@@ -6,7 +6,6 @@
 
 package com.nostalgiamaps.events;
 
-import com.nostalgiamaps.utils.Logs;
 import com.nostalgiamaps.MapInstance;
 import com.nostalgiamaps.NostalgiaMaps;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -27,11 +26,11 @@ public class onJoinEvent implements Listener {
         Player p = e.getPlayer();
         String ownerName = NostalgiaMaps.getInstance().getConfigManager().getOwnerName();
 
+        e.setJoinMessage(null);
         p.sendMessage("§7Welcome to the server !\n");
-
         if ("first_player".equalsIgnoreCase(ownerName) && Bukkit.getOnlinePlayers().size() == 1)
             NostalgiaMaps.getInstance().getMapsManager().setTempOwnerPlayername(p.getName());
-        // If owner join the server
+
         if (p.getName().equals(ownerName) || p.getName().equals(NostalgiaMaps.getInstance().getMapsManager().getTempOwnerPlayername())) {
             if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap() == null) {
                 TextComponent message1 = new TextComponent("§7You're the server owner. " +
@@ -47,7 +46,7 @@ public class onJoinEvent implements Listener {
             }
         } else {
             // If player join the server and no map is selected or loaded
-            if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap() == null &&
+            if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap() == null ||
                     NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getLoadStatus() != MapInstance.LoadStatus.LOADED) {
                 if (p.getUniqueId() != Bukkit.getOfflinePlayer(ownerName).getUniqueId())
                     p.sendMessage("§7Wait for the server owner to choose a map.");

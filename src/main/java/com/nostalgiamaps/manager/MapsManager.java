@@ -27,9 +27,18 @@ public class MapsManager {
     }
 
     public void addMap(MapInstance map) {
-        mapsPool.add(map);
-        for (Player p : Bukkit.getOnlinePlayers())
-            p.sendMessage("§eMap '"+map.getDisplayName()+"' has been added to the maps library.");
+        Bukkit.getScheduler().runTaskAsynchronously(NostalgiaMaps.getInstance(), () -> {
+            while (map.getLoadStatus() != MapInstance.LoadStatus.LOADED && map.getLoadStatus() != MapInstance.LoadStatus.ERROR) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            mapsPool.add(map);
+            for (Player p : Bukkit.getOnlinePlayers())
+                p.sendMessage("§eMap '"+map.getDisplayName()+"' has been added to the maps library.");
+        });
     }
 
     public void removeMap(MapInstance map) {

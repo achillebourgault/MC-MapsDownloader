@@ -18,8 +18,7 @@ public class ConfigManager {
     }
 
     private void loadConfig() {
-        config.options().copyDefaults(false);
-        NostalgiaMaps.getInstance().saveConfig();
+        NostalgiaMaps.getInstance().saveDefaultConfig();
     }
 
     public String getOwnerName() {

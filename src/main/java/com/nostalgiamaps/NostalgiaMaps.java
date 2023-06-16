@@ -36,7 +36,6 @@ public final class NostalgiaMaps extends JavaPlugin {
         votingManager = new VotingManager();
 
         registerEvents();
-        System.out.println("NostalgiaMaps loaded.");
     }
 
     private void registerEvents() {

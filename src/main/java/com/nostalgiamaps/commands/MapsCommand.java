@@ -36,12 +36,13 @@ public class MapsCommand implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("add")) {
                     if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
                         if (args.length >= 2) {
-                            if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
-                                p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
+                            if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) != null) {
+                                p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' already exist.");
                                 return true;
                             }
+                            p.sendMessage("§ePlease wait while the map is being downloaded...");
                             NostalgiaMaps.getInstance().getMapsManager().addMap(new MapInstance(args[1],
-                                    args[2] != null && (args[2].equalsIgnoreCase("true") ||
+                                    args.length == 3 && (args[2].equalsIgnoreCase("true") ||
                                             args[2].equalsIgnoreCase("false")) && Boolean.parseBoolean(args[2])
                             ));
                         } else {

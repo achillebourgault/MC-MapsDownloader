@@ -15,7 +15,7 @@ main: com.nostalgiamaps.NostalgiaMaps
 author: AchilleBourgault
 description: A plugin that allows you to download and play old Minecraft maps without having to download them by yourself.
 website: https://github.com/achillebourgault
-api-version: 1.20
+api-version: 1.13
 commands:
   maps:
     description: Opens the map selection GUI

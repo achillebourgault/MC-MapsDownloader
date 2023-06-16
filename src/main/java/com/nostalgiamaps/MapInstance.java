@@ -7,13 +7,15 @@
 package com.nostalgiamaps;
 
 import com.nostalgiamaps.utils.Logs;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,59 +56,69 @@ public class MapInstance {
 
         Bukkit.getScheduler().runTask(NostalgiaMaps.getInstance(), () -> {
             try {
-                URL url = new URL(mapUrl);
-                mapDisplayName = url.getFile().substring(url.getFile().lastIndexOf('/') + 1);
-                try (BufferedInputStream in = new BufferedInputStream(url.openStream())) {
-                    File tempFile = File.createTempFile("map", ".zip");
-                    tempFile.deleteOnExit();
+                CloseableHttpClient httpClient = HttpClients.createDefault();
+                HttpGet request = new HttpGet(mapUrl);
+                HttpResponse response = httpClient.execute(request);
 
-                    // Copie du contenu téléchargé dans le fichier temporaire
-                    Files.copy(in, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                InputStream inputStream = response.getEntity().getContent();
+                File tempFile = File.createTempFile("map", ".zip");
+                tempFile.deleteOnExit();
 
-                    extractZip(tempFile);
-                    createWorld();
-                } catch (IOException e) {
-                    Logs.send("Error while downloading map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                    Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                }
+                // Copie du contenu téléchargé dans le fichier temporaire
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                extractZip(tempFile);
+                createWorld();
+
+                inputStream.close();
+                httpClient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Logs.send("Error while downloading map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
+                Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
             }
         });
     }
 
     private void extractZip(File zipFile) {
-        try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(Files.newInputStream(zipFile.toPath())))) {
+        String tmpMapName = null;
+        boolean allFilesExtracted = true;
+
+        try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)))) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
-                    String newDirectoryName = UUID.randomUUID().toString();
-                    File serverDirectory = new File("./");
+                    String entryName = entry.getName();
+                    File destinationFile = new File("./" + entryName);
 
-                    if (!serverDirectory.exists())
-                        Logs.send("Error while retrieving server directory", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-
-                    File mapDirectory = new File(serverDirectory, newDirectoryName);
-                    if (!mapDirectory.mkdir()) {
-                        Logs.send("Error while creating map directory", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                        return;
+                    // Crée les répertoires parents si nécessaire
+                    if (!destinationFile.getParentFile().exists()) {
+                        destinationFile.getParentFile().mkdirs();
                     }
 
-                    // Copie des fichiers extraits dans le dossier de la carte
-                    Path outputPath = mapDirectory.toPath().resolve(entry.getName());
-                    Files.copy(zipInputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
-                    this.mapName = entry.getName();
-                    this.loadStatus = LoadStatus.LOADED;
-                    Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                    teleportPlayerIfImmediatelyLoaded();
+                    // Copie du fichier extrait dans le répertoire de destination
+                    Files.copy(zipInputStream, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                    // Si c'est le premier fichier extrait, assigne son nom à la variable tmpMapName
+                    if (tmpMapName == null) {
+                        tmpMapName = entryName;
+                    }
                 }
                 zipInputStream.closeEntry();
             }
         } catch (IOException e) {
+            allFilesExtracted = false;
             this.loadStatus = LoadStatus.ERROR;
             Logs.send("Error while extracting map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
             Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
             e.printStackTrace();
+        }
+
+        if (allFilesExtracted) {
+            this.loadStatus = LoadStatus.LOADED;
+            this.mapName = tmpMapName.substring(0, tmpMapName.indexOf("/"));
+            this.mapDisplayName = this.mapName;
+            Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+            teleportPlayerIfImmediatelyLoaded();
         }
     }
 
@@ -121,7 +133,7 @@ public class MapInstance {
     private void teleportPlayerIfImmediatelyLoaded() {
         if (loadImmediately) {
             Bukkit.getOnlinePlayers().forEach(player -> {
-                player.teleport(player.getWorld().getSpawnLocation());
+                player.teleport(getWorld().getSpawnLocation());
             });
         }
     }
@@ -148,5 +160,9 @@ public class MapInstance {
 
     public boolean isLoadImmediately() {
         return loadImmediately;
+    }
+
+    public void setMapName(String mapName) {
+        this.mapName = mapName;
     }
 }
