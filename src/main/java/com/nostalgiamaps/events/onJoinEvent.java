@@ -26,24 +26,13 @@ public class onJoinEvent implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         String ownerName = NostalgiaMaps.getInstance().getConfigManager().getOwnerName();
-        String defaultOwner = Bukkit.getOperators().iterator().next().getName();
 
-        // Set default owner as first player if no owner found in config.yml and no operator found
-        if (ownerName == null) {
-            if (defaultOwner == null) {
-                defaultOwner = p.getName();
-                ownerName = defaultOwner;
-            }
-            NostalgiaMaps.getInstance().getConfig().set("owner", defaultOwner);
-            NostalgiaMaps.getInstance().saveConfig();
-            Logs.send("No owner found in config.yml. Setting default owner as " + defaultOwner + ".", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-            Logs.send("You're now the server owner.", Logs.LogType.WARNING, Logs.LogPrivilege.EXACT_PLAYER, defaultOwner);
-        }
+        p.sendMessage("§7Welcome to the server !\n");
 
+        if ("first_player".equalsIgnoreCase(ownerName) && Bukkit.getOnlinePlayers().size() == 1)
+            NostalgiaMaps.getInstance().getMapsManager().setTempOwnerPlayername(p.getName());
         // If owner join the server
-        if (p.getUniqueId() == Bukkit.getOfflinePlayer(ownerName).getUniqueId()) {
-            p.sendMessage("§7Welcome to the server !");
-            p.sendMessage("");
+        if (p.getName().equals(ownerName) || p.getName().equals(NostalgiaMaps.getInstance().getMapsManager().getTempOwnerPlayername())) {
             if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap() == null) {
                 TextComponent message1 = new TextComponent("§7You're the server owner. " +
                         "You can now choose a map by clicking here or with §e/map choose <map name>§7.");
@@ -57,9 +46,6 @@ public class onJoinEvent implements Listener {
                 p.sendMessage("§7Selected map: §e" + NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName() + "§7.");
             }
         } else {
-            p.sendMessage("§7Welcome to the server of §e" + NostalgiaMaps.getInstance().getConfigManager().getOwnerName() + "§7!");
-            p.sendMessage("");
-
             // If player join the server and no map is selected or loaded
             if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap() == null &&
                     NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getLoadStatus() != MapInstance.LoadStatus.LOADED) {

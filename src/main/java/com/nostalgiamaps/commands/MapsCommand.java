@@ -34,7 +34,7 @@ public class MapsCommand implements CommandExecutor {
                 return true;
             } else {
                 if (args[0].equalsIgnoreCase("add")) {
-                    if (p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp()) {
+                    if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
                         if (args.length >= 2) {
                             if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
                                 p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
@@ -51,7 +51,7 @@ public class MapsCommand implements CommandExecutor {
                         p.sendMessage("§f§lERROR  §r§cYou don't have permission to use this command.");
                     }
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    if (p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp()) {
+                    if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
                         if (args.length == 2) {
                             if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
                                 p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
@@ -65,7 +65,7 @@ public class MapsCommand implements CommandExecutor {
                         p.sendMessage("§f§lERROR  §r§cYou don't have permission to use this command.");
                     }
                 } else if (args[0].equalsIgnoreCase("load")) {
-                    if (p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp()) {
+                    if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
                         if (args.length == 2) {
                             if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
                                 p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
@@ -87,7 +87,7 @@ public class MapsCommand implements CommandExecutor {
                             if (args[1].equalsIgnoreCase("start") || args[1].equalsIgnoreCase("stop")) {
                                 boolean isStart = args[1].equalsIgnoreCase("start");
 
-                                if (!p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) && !p.isOp()) {
+                                if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
                                     p.sendMessage("§f§lERROR  §r§cYou don't have permission to use this command.");
                                     return true;
                                 }

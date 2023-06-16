@@ -23,7 +23,7 @@ public class ConfigManager {
     }
 
     public String getOwnerName() {
-        return "none".equals(config.getString("owner")) || "ops".equals(config.getString("owner")) ? null : config.getString("owner");
+        return config.getString("owner");
     }
 
     public String getMapDisplayName() {

@@ -20,6 +20,7 @@ public class MapsManager {
     private final MapInstance currentMap;
     private final ArrayList<MapInstance> mapsPool = new ArrayList<>();
     private final ArrayList<MapInstance> mapsQueue = new ArrayList<>();
+    private String tempOwnerPlayername = null;
 
     public MapsManager() {
         this.currentMap = null;
@@ -81,4 +82,20 @@ public class MapsManager {
         }
         mapsQueue.remove(map);
     }
+
+    public String getTempOwnerPlayername() {
+        return tempOwnerPlayername;
+    }
+
+    public void setTempOwnerPlayername(String tempOwnerPlayername) {
+        this.tempOwnerPlayername = tempOwnerPlayername;
+    }
+
+    public boolean isPlayerHasPrivilege(Player p) {
+        return
+                p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) ||
+                p.getName().equals(NostalgiaMaps.getInstance().getMapsManager().getTempOwnerPlayername()) ||
+                "none".equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp();
+    }
+
 }

@@ -12,14 +12,16 @@
 
 # Owner options: none | first_player | ops | <playername>
 #   The owner of the server is the only one who can manage maps and use plugin commands.
+#     Note: Server Operators (ops) can always use plugin commands.
 #
+#   Possible values:
 #   - none: Everyone are the server owners
 #   - first_player: The first player that joins the server will be the server owner
 #   - ops: Only servers operators are the server owners
 #   - <playername>: Only the player with the specified name is the server owner. Don't use "<" and ">".
 owner: none
 
-# If you want to specify a map by default, you need to fill Map name & map Display name. Otherwise, leave it as it is.
+# If you want to specify a map by default, you need to selected_map & selected_map_display_name. Otherwise, leave it as it is.
 # Map name should be the name of the folder in the map's folder.
 map:
   selected_map: none
