@@ -41,10 +41,14 @@ public class MapsCommand implements CommandExecutor {
                                 return true;
                             }
                             p.sendMessage("§ePlease wait while the map is being downloaded...");
-                            NostalgiaMaps.getInstance().getMapsManager().addMap(new MapInstance(args[1],
+                            new MapInstance(args[1],
                                     args.length == 3 && (args[2].equalsIgnoreCase("true") ||
                                             args[2].equalsIgnoreCase("false")) && Boolean.parseBoolean(args[2])
-                            ));
+                            );
+//      TODO:                      NostalgiaMaps.getInstance().getMapsManager().addMap(new MapInstance(args[1],
+//                                    args.length == 3 && (args[2].equalsIgnoreCase("true") ||
+//                                            args[2].equalsIgnoreCase("false")) && Boolean.parseBoolean(args[2])
+//                            ));
                         } else {
                             p.sendMessage("§f§lERROR  §r§cUsage: /maps add <mapUrl> [optional: true|false]");
                         }

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class MapsManager {
 
-    private final MapInstance currentMap;
+    private MapInstance currentMap;
     private final ArrayList<MapInstance> mapsPool = new ArrayList<>();
     private final ArrayList<MapInstance> mapsQueue = new ArrayList<>();
     private String tempOwnerPlayername = null;
@@ -35,10 +35,16 @@ public class MapsManager {
                     e.printStackTrace();
                 }
             }
+            if (getCurrentMap() == null && getMapsQueue().size() <= 1)
+                setCurrentMap(map);
             mapsPool.add(map);
             for (Player p : Bukkit.getOnlinePlayers())
                 p.sendMessage("§eMap '"+map.getDisplayName()+"' has been added to the maps library.");
         });
+    }
+
+    public void setCurrentMap(MapInstance map) {
+        this.currentMap = map;
     }
 
     public void removeMap(MapInstance map) {

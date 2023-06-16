@@ -68,7 +68,6 @@ public class MapInstance {
                 Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 extractZip(tempFile);
-                createWorld();
 
                 inputStream.close();
                 httpClient.close();
@@ -115,10 +114,27 @@ public class MapInstance {
 
         if (allFilesExtracted) {
             this.loadStatus = LoadStatus.LOADED;
-            this.mapName = tmpMapName.substring(0, tmpMapName.indexOf("/"));
+            Logs.send("Got tmpMapName: [" + tmpMapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+            this.mapName = tmpMapName != null ? tmpMapName.substring(0, tmpMapName.indexOf("/")) : UUID.randomUUID().toString();
+
+            Logs.send("APPLY Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+            //format world name to remove special characters and be compatible with WorldCreator
+            this.mapName = this.mapName.replaceAll("[^a-zA-Z0-9_]", "");
+            Logs.send("APPLIED Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
             this.mapDisplayName = this.mapName;
-            Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-            teleportPlayerIfImmediatelyLoaded();
+            NostalgiaMaps.getInstance().getMapsManager().addMap(this);
+            createWorld();
+            Bukkit.getScheduler().runTaskAsynchronously(NostalgiaMaps.getInstance(), () -> {
+                while (Bukkit.getWorld(mapName) == null) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+                teleportPlayerIfImmediatelyLoaded();
+            });
         }
     }
 
@@ -127,7 +143,9 @@ public class MapInstance {
             System.out.println("[DEBUG](MapInstance:createWorld) mapName is null.");
             return;
         }
-        Bukkit.createWorld(new WorldCreator(this.mapName));
+        // load world into server
+        Logs.send("Loading world with name [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+        WorldCreator worldCreator = new WorldCreator(this.mapName);
     }
 
     private void teleportPlayerIfImmediatelyLoaded() {
