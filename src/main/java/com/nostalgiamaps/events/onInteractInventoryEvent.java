@@ -1,3 +1,9 @@
+/*********************************************************\
+*   @Author: AchilleBourgault                             *
+*   @Github: https://github.com/achillebourgault          *
+*   @Project: NostalgiaMaps                               *
+\*********************************************************/
+
 package com.nostalgiamaps.events;
 
 import com.nostalgiamaps.utils.Static;

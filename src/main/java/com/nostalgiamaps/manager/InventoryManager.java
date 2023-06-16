@@ -1,3 +1,9 @@
+/*********************************************************\
+*   @Author: AchilleBourgault                             *
+*   @Github: https://github.com/achillebourgault          *
+*   @Project: NostalgiaMaps                               *
+\*********************************************************/
+
 package com.nostalgiamaps.manager;
 
 import com.nostalgiamaps.MapInstance;
@@ -12,7 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class InventoryManager {
@@ -45,13 +50,6 @@ public class InventoryManager {
             ArrayList<MapInstance> mapsPool = NostalgiaMaps.getInstance().getMapsManager().getMapsPool();
             boolean isMapPoolEmpty = mapsPool.isEmpty();
 
-            if (NostalgiaMaps.getInstance().getInventoryManager().getMapInvAnimationIdx() == 2) {
-                NostalgiaMaps.getInstance().getInventoryManager().setMapInvAnimationIdx(0);
-            } else {
-                NostalgiaMaps.getInstance().getInventoryManager().setMapInvAnimationIdx(
-                        NostalgiaMaps.getInstance().getInventoryManager().getMapInvAnimationIdx() + 1);
-            }
-
             if (isMapPoolEmpty) {
                 currentInventory.setItem(22, Item.createItem("§cNo maps available. Click below to add one.",
                         1, Material.BARRIER, null));
@@ -73,6 +71,13 @@ public class InventoryManager {
                                 NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName(),
                         id, Material.FILLED_MAP, null));
                 currentInventory.setItem(49, Item.createItem("§cExit", 1, Material.BARRIER, null));
+            }
+
+            if (NostalgiaMaps.getInstance().getInventoryManager().getMapInvAnimationIdx() == 2) {
+                NostalgiaMaps.getInstance().getInventoryManager().setMapInvAnimationIdx(0);
+            } else {
+                NostalgiaMaps.getInstance().getInventoryManager().setMapInvAnimationIdx(
+                        NostalgiaMaps.getInstance().getInventoryManager().getMapInvAnimationIdx() + 1);
             }
         }, 0, 10);
     }
@@ -102,6 +107,9 @@ public class InventoryManager {
         desc.add("");
         desc.add("§f§lURL");
         desc.add("§7" + map.getUrl());
+        desc.add("");
+        desc.add("§f§lWORLD CONTAINER");
+        desc.add("§7" + map.getName());
         desc.add("");
         return desc;
     }

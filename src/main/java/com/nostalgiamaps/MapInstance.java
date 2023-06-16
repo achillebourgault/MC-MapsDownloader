@@ -1,10 +1,15 @@
+/*********************************************************\
+*   @Author: AchilleBourgault                             *
+*   @Github: https://github.com/achillebourgault          *
+*   @Project: NostalgiaMaps                               *
+\*********************************************************/
+
 package com.nostalgiamaps;
 
 import com.nostalgiamaps.utils.Logs;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.BufferedInputStream;
 import java.io.File;

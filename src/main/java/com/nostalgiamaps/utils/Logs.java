@@ -1,3 +1,9 @@
+/*********************************************************\
+*   @Author: AchilleBourgault                             *
+*   @Github: https://github.com/achillebourgault          *
+*   @Project: NostalgiaMaps                               *
+\*********************************************************/
+
 package com.nostalgiamaps.utils;
 
 import org.bukkit.Bukkit;
@@ -19,7 +25,7 @@ public class Logs {
         CONSOLE
     }
 
-    static String prefix = "§8[§6NostalgiaMaps§8] §7";
+    static String prefix = "§f§lLOGS  §r§7";
 
     public static void send(String message, LogType type, LogPrivilege privilege, String... playerNameIfExact) {
         switch (privilege) {

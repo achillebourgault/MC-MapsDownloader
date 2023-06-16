@@ -1,3 +1,9 @@
+/*********************************************************\
+*   @Author: AchilleBourgault                             *
+*   @Github: https://github.com/achillebourgault          *
+*   @Project: NostalgiaMaps                               *
+\*********************************************************/
+
 package com.nostalgiamaps.utils;
 
 import org.bukkit.Material;
