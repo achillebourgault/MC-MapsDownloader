@@ -1,3 +1,13 @@
+#######################################*#####################################
+#                                                                           #
+#   @Author: AchilleBourgault                                               #
+#   @Project: NostalgiaMaps                                                 #
+#   @Github: https://github.com/achillebourgault                            #
+#   @SpigotLink: https://www.spigotmc.org/resources/nostalgiamaps.94887/    #
+#   Report a bug: https://www.spigotmc.org/resources/nostalgiamaps.94887/   #
+#                                                                           #
+#######################################*#####################################
+
 name: NostalgiaMaps
 version: '${project.version}'
 main: com.nostalgiamaps.NostalgiaMaps

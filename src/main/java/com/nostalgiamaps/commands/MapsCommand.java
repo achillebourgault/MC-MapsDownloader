@@ -36,6 +36,10 @@ public class MapsCommand implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("add")) {
                     if (p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp()) {
                         if (args.length >= 2) {
+                            if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
+                                p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
+                                return true;
+                            }
                             NostalgiaMaps.getInstance().getMapsManager().addMap(new MapInstance(args[1],
                                     args[2] != null && (args[2].equalsIgnoreCase("true") ||
                                             args[2].equalsIgnoreCase("false")) && Boolean.parseBoolean(args[2])
@@ -49,7 +53,25 @@ public class MapsCommand implements CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("remove")) {
                     if (p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp()) {
                         if (args.length == 2) {
+                            if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
+                                p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
+                                return true;
+                            }
                             NostalgiaMaps.getInstance().getMapsManager().removeMap(NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]));
+                        } else {
+                            p.sendMessage("§f§lERROR  §r§cUsage: /maps remove <mapName>");
+                        }
+                    } else {
+                        p.sendMessage("§f§lERROR  §r§cYou don't have permission to use this command.");
+                    }
+                } else if (args[0].equalsIgnoreCase("load")) {
+                    if (p.getName().equals(NostalgiaMaps.getInstance().getConfigManager().getOwnerName()) || p.isOp()) {
+                        if (args.length == 2) {
+                            if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
+                                p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
+                                return true;
+                            }
+                            NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]).load();
                         } else {
                             p.sendMessage("§f§lERROR  §r§cUsage: /maps remove <mapName>");
                         }
@@ -73,7 +95,8 @@ public class MapsCommand implements CommandExecutor {
                     p.spigot().sendMessage(message, author);
                     p.sendMessage("§f§lCOMMANDS\n");
                     p.sendMessage("§e/maps §7- §fOpens the maps inventory.");
-                    p.sendMessage("§e/maps add <mapUrl> (true: optional) §7- §fAdds a map to the maps library.");
+                    p.sendMessage("§e/maps add <mapUrl> §7[true|false: §fOptional Load Immediately option§7] - §fAdds a map to the maps library.");
+                    p.sendMessage("§e/maps load <mapName> §7- §fLoads a map from the maps library.");
                     p.sendMessage("§e/maps remove <mapName> §7- §fRemoves a map from the maps library.");
                     p.sendMessage("§e/maps info §7- §fShows this message.");
                     p.sendMessage("");

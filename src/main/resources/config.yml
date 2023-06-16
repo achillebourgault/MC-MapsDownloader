@@ -1,6 +1,44 @@
-# Owner options: none | ops | <playername>
+#######################################*#####################################
+#                                                                           #
+#   @Author: AchilleBourgault                                               #
+#   @Project: NostalgiaMaps                                                 #
+#   @Github: https://github.com/achillebourgault                            #
+#   @SpigotLink: https://www.spigotmc.org/resources/nostalgiamaps.94887/    #
+#   Report a bug: https://www.spigotmc.org/resources/nostalgiamaps.94887/   #
+#                                                                           #
+#######################################*#####################################
+
+
+# Owner options: none | first_player | ops | <playername>
+#   The owner of the server is the only one who can manage maps and use plugin commands.
+#
+#   - none: Everyone are the server owners
+#   - first_player: The first player that joins the server will be the server owner
+#   - ops: Only servers operators are the server owners
+#   - <playername>: Only the player with the specified name is the server owner. Don't use "<" and ">".
 owner: none
+
+# If you want to specify a map by default, you need to fill Map name & map Display name. Otherwise, leave it as it is.
+# Map name should be the name of the folder in the map's folder.
 map:
   selected_map: none
   selected_map_display_name: none
   selected_map_url: none
+
+# When a new map is added, a vote will start for the duration you define (default: 60 seconds) to decide whether to play on this map.
+# You can also vote on all available maps using the /maps vote start command.
+voting_system:
+  start_vote_on_new_map: true
+  active: true
+  voting_duration: 60
+
+# WARNING !!! If you use a custom scoreboard, this may lead to incompatibilities with maps that already display scoreboards.
+# Use this option only if you know what you are doing.
+scoreboard:
+  active: false
+  title: '&e&lNostalgiaMaps'
+  show_map_name: true
+  show_number_of_players: true
+  show_number_of_maps: true
+  shift: 2
+  refresh_rate: 20
