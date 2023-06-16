@@ -14,6 +14,7 @@ import com.nostalgiamaps.manager.ConfigManager;
 import com.nostalgiamaps.manager.InventoryManager;
 import com.nostalgiamaps.manager.MapsManager;
 
+import com.nostalgiamaps.manager.VotingManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -24,6 +25,7 @@ public final class NostalgiaMaps extends JavaPlugin {
     private ConfigManager config;
     private MapsManager mapsManager;
     private InventoryManager inventoryManager;
+    private VotingManager votingManager;
 
     @Override
     public void onEnable() {
@@ -31,6 +33,7 @@ public final class NostalgiaMaps extends JavaPlugin {
         config = new ConfigManager();
         mapsManager = new MapsManager();
         inventoryManager = new InventoryManager();
+        votingManager = new VotingManager();
 
         registerEvents();
         System.out.println("NostalgiaMaps loaded.");
@@ -65,5 +68,9 @@ public final class NostalgiaMaps extends JavaPlugin {
 
     public InventoryManager getInventoryManager() {
         return inventoryManager;
+    }
+
+    public VotingManager getVotingManager() {
+        return votingManager;
     }
 }

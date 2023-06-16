@@ -10,6 +10,7 @@ import com.nostalgiamaps.MapInstance;
 import com.nostalgiamaps.NostalgiaMaps;
 import com.nostalgiamaps.utils.Logs;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -17,7 +18,8 @@ import java.util.ArrayList;
 public class MapsManager {
 
     private final MapInstance currentMap;
-    private final ArrayList<MapInstance> mapsPool = new ArrayList<MapInstance>();
+    private final ArrayList<MapInstance> mapsPool = new ArrayList<>();
+    private final ArrayList<MapInstance> mapsQueue = new ArrayList<>();
 
     public MapsManager() {
         this.currentMap = null;
@@ -40,6 +42,18 @@ public class MapsManager {
         }
     }
 
+    public MapInstance getMapByName(String mapName) {
+        for (MapInstance map : mapsPool) {
+            if (map.getName().equals(mapName))
+                return map;
+        }
+        return null;
+    }
+
+    public MapInstance chooseRandomMap() {
+        return mapsPool.get((int) (Math.random() * mapsPool.size()));
+    }
+
     public ArrayList<MapInstance> getMapsPool() {
         return mapsPool;
     }
@@ -48,11 +62,23 @@ public class MapsManager {
         return currentMap;
     }
 
-    public MapInstance getMapByName(String mapName) {
-        for (MapInstance map : mapsPool) {
-            if (map.getName().equals(mapName))
-                return map;
+    public ArrayList<MapInstance> getMapsQueue() {
+        return mapsQueue;
+    }
+
+    public void addMapToQueue(MapInstance map) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.sendMessage("§f§lMAPS QUEUE  §eMap '" + map.getDisplayName() + "' has been added to the maps queue.");
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
         }
-        return null;
+        mapsQueue.add(map);
+    }
+
+    public void removeMapFromQueue(MapInstance map) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.sendMessage("§f§lMAPS QUEUE  §eMap '" + map.getDisplayName() + "' has been removed from the maps queue.");
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_GUITAR, 1, 1);
+        }
+        mapsQueue.remove(map);
     }
 }

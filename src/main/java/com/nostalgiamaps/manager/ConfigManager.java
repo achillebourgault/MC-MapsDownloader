@@ -37,4 +37,27 @@ public class ConfigManager {
     public String getMapUrl() {
         return "none".equals(config.getString("map.selected_map_url")) ? null : config.getString("map.selected_map_url");
     }
+
+    public static class VotingSystemConfig {
+        private final boolean startVoteOnNewMap;
+        private final boolean active;
+        private final int votingDuration;
+
+        public VotingSystemConfig(boolean startVoteOnNewMap, boolean active, int votingDuration) {
+            this.startVoteOnNewMap = startVoteOnNewMap;
+            this.active = active;
+            this.votingDuration = votingDuration;
+        }
+        public boolean isStartVoteOnNewMap() { return startVoteOnNewMap; }
+        public boolean isActive() { return active; }
+        public int getVotingDuration() { return votingDuration; }
+    }
+
+    public VotingSystemConfig getVotingSystemConfig() {
+        return new VotingSystemConfig(
+                config.getBoolean("voting_system.start_vote_on_new_map"),
+                config.getBoolean("voting_system.active"),
+                config.getInt("voting_system.voting_duration")
+        );
+    }
 }

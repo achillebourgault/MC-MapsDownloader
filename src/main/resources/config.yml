@@ -1,12 +1,13 @@
-#######################################*#####################################
-#                                                                           #
-#   @Author: AchilleBourgault                                               #
-#   @Project: NostalgiaMaps                                                 #
-#   @Github: https://github.com/achillebourgault                            #
-#   @SpigotLink: https://www.spigotmc.org/resources/nostalgiamaps.94887/    #
-#   Report a bug: https://www.spigotmc.org/resources/nostalgiamaps.94887/   #
-#                                                                           #
-#######################################*#####################################
+################################################################################################################################
+#                                                                         |                                                    #
+#  @Author: AchilleBourgault                                              |  I'm doing this for free, but if you want to       #
+#  @Project: NostalgiaMaps                                                |  support me, you can donate to me on PayPal.       #
+#  @Github: https://github.com/achillebourgault                           |  ---                                               #
+#  @SpigotLink: https://www.spigotmc.org/resources/nostalgiamaps.94887/   |  https://www.paypal.com/paypalme/achillebourgault  #
+#  *-------------------------------------------------------------------*  |  Need Plugin Development? Or something else?       #
+#  Report a bug: https://www.spigotmc.org/resources/nostalgiamaps.94887/  |     Contact me on Discord: #Esporc                 #
+#                                                                         |                                                    #
+###### -- Plugin Configuration File -- #########################################################################################
 
 
 # Owner options: none | first_player | ops | <playername>
@@ -26,13 +27,13 @@ map:
   selected_map_url: none
 
 # When a new map is added, a vote will start for the duration you define (default: 60 seconds) to decide whether to play on this map.
-# You can also vote on all available maps using the /maps vote start command.
+# You can also vote on all available maps using the '/maps vote start' command. (Could be triggered from console)
 voting_system:
   start_vote_on_new_map: true
   active: true
   voting_duration: 60
 
-# WARNING !!! If you use a custom scoreboard, this may lead to incompatibilities with maps that already display scoreboards.
+# !!! WARNING !!! If you use a custom scoreboard, this may lead to incompatibilities with maps that already display scoreboards.
 # Use this option only if you know what you are doing.
 scoreboard:
   active: false
