@@ -59,4 +59,64 @@ public class ConfigManager {
                 config.getInt("voting_system.voting_duration")
         );
     }
+
+    public static class ScoreboardConfig {
+        private final boolean active;
+        private final String title;
+        private final boolean showMapName;
+        private final boolean showNumberOfPlayers;
+        private final boolean showNumberOfMaps;
+        private final int shift;
+        private final int refreshRate;
+
+        public ScoreboardConfig(boolean active, String title, boolean showMapName, boolean showNumberOfPlayers, boolean showNumberOfMaps, int shift, int refreshRate) {
+            this.active = active;
+            this.title = title;
+            this.showMapName = showMapName;
+            this.showNumberOfPlayers = showNumberOfPlayers;
+            this.showNumberOfMaps = showNumberOfMaps;
+            this.shift = shift;
+            this.refreshRate = refreshRate;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public boolean isShowMapName() {
+            return showMapName;
+        }
+
+        public boolean isShowNumberOfPlayers() {
+            return showNumberOfPlayers;
+        }
+
+        public boolean isShowNumberOfMaps() {
+            return showNumberOfMaps;
+        }
+
+        public int getShift() {
+            return shift;
+        }
+
+        public int getRefreshRate() {
+            return refreshRate;
+        }
+    }
+
+    public ScoreboardConfig getScoreboardConfig() {
+        return new ScoreboardConfig(
+                config.getBoolean("scoreboard.active"),
+                config.getString("scoreboard.title"),
+                config.getBoolean("scoreboard.show_map_name"),
+                config.getBoolean("scoreboard.show_number_of_players"),
+                config.getBoolean("scoreboard.show_number_of_maps"),
+                config.getInt("scoreboard.shift"),
+                config.getInt("scoreboard.refresh_rate")
+        );
+    }
 }

@@ -69,7 +69,7 @@ public class InventoryManager {
 
                 currentInventory.setItem(41, Item.createItem("§7Current map: §f§l#" + id + " §e" +
                                 NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName(),
-                        id, Material.FILLED_MAP, null));
+                        id, Material.OAK_SIGN, null));
                 currentInventory.setItem(49, Item.createItem("§cExit", 1, Material.BARRIER, null));
             }
 

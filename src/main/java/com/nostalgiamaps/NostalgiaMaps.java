@@ -10,11 +10,8 @@ import com.nostalgiamaps.commands.MapsCommand;
 import com.nostalgiamaps.events.PlayerDamageEvent;
 import com.nostalgiamaps.events.onInteractInventoryEvent;
 import com.nostalgiamaps.events.onJoinEvent;
-import com.nostalgiamaps.manager.ConfigManager;
-import com.nostalgiamaps.manager.InventoryManager;
-import com.nostalgiamaps.manager.MapsManager;
+import com.nostalgiamaps.manager.*;
 
-import com.nostalgiamaps.manager.VotingManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -26,6 +23,7 @@ public final class NostalgiaMaps extends JavaPlugin {
     private MapsManager mapsManager;
     private InventoryManager inventoryManager;
     private VotingManager votingManager;
+    private BoardManager scoreboardManager;
 
     @Override
     public void onEnable() {
@@ -51,6 +49,7 @@ public final class NostalgiaMaps extends JavaPlugin {
     public void onDisable() {
         if (getInventoryManager().getInventoryTask() != null)
             getInventoryManager().getInventoryTask().cancel();
+        getScoreboardManager().cancelBoardTask();
     }
 
     public static NostalgiaMaps getInstance() {
@@ -72,4 +71,6 @@ public final class NostalgiaMaps extends JavaPlugin {
     public VotingManager getVotingManager() {
         return votingManager;
     }
+
+    public BoardManager getScoreboardManager() { return scoreboardManager; }
 }
