@@ -38,10 +38,10 @@ voting_system:
 # !!! WARNING !!! If you use a custom scoreboard, this may lead to incompatibilities with maps that already display scoreboards.
 # Use this option only if you know what you are doing.
 scoreboard:
-  active: false
+  active: true
   title: '&e&lNostalgiaMaps'
   show_map_name: true
   show_number_of_players: true
   show_number_of_maps: true
-  shift: 2
+  shift: 0
   refresh_rate: 20

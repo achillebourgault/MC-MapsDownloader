@@ -31,7 +31,7 @@ public class InventoryManager {
         registerAsyncInventoryTask();
     }
 
-    private void initMapInventory() {
+    public void initMapInventory() {
         mapsInventory = Bukkit.createInventory(null, 54, Static.InventoryMapsName);
 
         for (int i = 0; i < 9; i++) {
@@ -46,9 +46,11 @@ public class InventoryManager {
 
     private void registerAsyncInventoryTask() {
         inventoryTask = Bukkit.getScheduler().runTaskTimer(NostalgiaMaps.getInstance(), () -> {
+            NostalgiaMaps.getInstance().getInventoryManager().initMapInventory();
             Inventory currentInventory = NostalgiaMaps.getInstance().getInventoryManager().getMapsInventory();
             ArrayList<MapInstance> mapsPool = NostalgiaMaps.getInstance().getMapsManager().getMapsPool();
             boolean isMapPoolEmpty = mapsPool.isEmpty() || mapsPool.stream().noneMatch(map -> map.getLoadStatus().equals(MapInstance.LoadStatus.LOADED));
+
 
             if (isMapPoolEmpty) {
                 currentInventory.setItem(22, Item.createItem("§cNo maps available. Click below to add one.",

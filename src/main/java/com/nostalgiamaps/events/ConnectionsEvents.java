@@ -19,7 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.Objects;
 
-public class onJoinEvent implements Listener {
+public class ConnectionsEvents implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {

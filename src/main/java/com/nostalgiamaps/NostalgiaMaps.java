@@ -7,9 +7,9 @@
 package com.nostalgiamaps;
 
 import com.nostalgiamaps.commands.MapsCommand;
-import com.nostalgiamaps.events.PlayerDamageEvent;
-import com.nostalgiamaps.events.onInteractInventoryEvent;
-import com.nostalgiamaps.events.onJoinEvent;
+import com.nostalgiamaps.events.LobbyEvents;
+import com.nostalgiamaps.events.InventoryEvents;
+import com.nostalgiamaps.events.ConnectionsEvents;
 import com.nostalgiamaps.manager.*;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,7 +23,7 @@ public final class NostalgiaMaps extends JavaPlugin {
     private MapsManager mapsManager;
     private InventoryManager inventoryManager;
     private VotingManager votingManager;
-    private BoardManager scoreboardManager;
+    private BoardManager boardManager;
 
     @Override
     public void onEnable() {
@@ -32,6 +32,7 @@ public final class NostalgiaMaps extends JavaPlugin {
         mapsManager = new MapsManager();
         inventoryManager = new InventoryManager();
         votingManager = new VotingManager();
+        boardManager = new BoardManager();
 
         registerEvents();
     }
@@ -40,16 +41,16 @@ public final class NostalgiaMaps extends JavaPlugin {
         Objects.requireNonNull(getCommand("maps")).setExecutor(new MapsCommand());
         Objects.requireNonNull(getCommand("maps")).setTabCompleter(MapsCommand.getTabCompleter());
 
-        getServer().getPluginManager().registerEvents(new onJoinEvent(), this);
-        getServer().getPluginManager().registerEvents(new onInteractInventoryEvent(), this);
-        getServer().getPluginManager().registerEvents(new PlayerDamageEvent(), this);
+        getServer().getPluginManager().registerEvents(new ConnectionsEvents(), this);
+        getServer().getPluginManager().registerEvents(new InventoryEvents(), this);
+        getServer().getPluginManager().registerEvents(new LobbyEvents(), this);
     }
 
     @Override
     public void onDisable() {
         if (getInventoryManager().getInventoryTask() != null)
             getInventoryManager().getInventoryTask().cancel();
-        getScoreboardManager().cancelBoardTask();
+        getBoardManager().cancelBoardTask();
     }
 
     public static NostalgiaMaps getInstance() {
@@ -72,5 +73,5 @@ public final class NostalgiaMaps extends JavaPlugin {
         return votingManager;
     }
 
-    public BoardManager getScoreboardManager() { return scoreboardManager; }
+    public BoardManager getBoardManager() { return boardManager; }
 }

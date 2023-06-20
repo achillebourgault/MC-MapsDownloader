@@ -12,7 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-public class PlayerDamageEvent implements Listener {
+public class LobbyEvents implements Listener {
 
         @EventHandler
         public void onPlayerDamage(EntityDamageEvent e) {

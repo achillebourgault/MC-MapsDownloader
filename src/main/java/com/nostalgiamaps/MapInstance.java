@@ -113,28 +113,38 @@ public class MapInstance {
         }
 
         if (allFilesExtracted) {
-            this.loadStatus = LoadStatus.LOADED;
-            Logs.send("Got tmpMapName: [" + tmpMapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-            this.mapName = tmpMapName != null ? tmpMapName.substring(0, tmpMapName.indexOf("/")) : UUID.randomUUID().toString();
+            if (tmpMapName == null) {
+                Logs.send("Unsupported map format.", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
+                Bukkit.getScheduler().runTaskLaterAsynchronously(NostalgiaMaps.getInstance(), () -> {
+                    Logs.send("Retrying to load map with another configuration..", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+                    this.loadStatus = LoadStatus.READY_TO_LOAD;
+                    load();
+                }, 15);
+            } else {
+                this.loadStatus = LoadStatus.LOADED;
+                Logs.send("Got tmpMapName: [" + tmpMapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+                this.mapName = tmpMapName.substring(0, tmpMapName.indexOf("/"));
 
-            Logs.send("APPLY Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-            //format world name to remove special characters and be compatible with WorldCreator
-            this.mapName = this.mapName.replaceAll("[^a-zA-Z0-9_]", "");
-            Logs.send("APPLIED Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-            this.mapDisplayName = this.mapName;
-            NostalgiaMaps.getInstance().getMapsManager().addMap(this);
-            createWorld();
-            Bukkit.getScheduler().runTaskAsynchronously(NostalgiaMaps.getInstance(), () -> {
-                while (Bukkit.getWorld(mapName) == null) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                Logs.send("APPLY Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+                //format world name to remove special characters and be compatible with WorldCreator
+                this.mapName = this.mapName.replaceAll("[^a-zA-Z0-9_]", "");
+                Logs.send("APPLIED Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+                this.mapDisplayName = this.mapName;
+                NostalgiaMaps.getInstance().getMapsManager().addMap(this);
+                createWorld();
+                Bukkit.getScheduler().runTaskAsynchronously(NostalgiaMaps.getInstance(), () -> {
+                    while (Bukkit.getWorld(mapName) == null) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                teleportPlayerIfImmediatelyLoaded();
-            });
+                    Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
+                    teleportPlayerIfImmediatelyLoaded();
+                });
+            }
+
         }
     }
 
