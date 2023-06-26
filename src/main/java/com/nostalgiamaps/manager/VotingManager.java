@@ -1,10 +1,3 @@
-/*********************************************************\
- *   @Author: AchilleBourgault                             *
- *   @Github: https://github.com/achillebourgault          *
- *   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
-
 package com.nostalgiamaps.manager;
 
 import com.nostalgiamaps.NostalgiaMaps;
@@ -20,6 +13,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 
+// TODO: Rework voting system
 public class VotingManager {
 
     private HashMap<Player, String> votes;

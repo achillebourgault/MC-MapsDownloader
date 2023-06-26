@@ -1,9 +1,3 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps.events;
 
 import com.nostalgiamaps.MapInstance;
@@ -31,18 +25,18 @@ public class ConnectionsEvents implements Listener {
         if ("first_player".equalsIgnoreCase(ownerName) && Bukkit.getOnlinePlayers().size() == 1)
             NostalgiaMaps.getInstance().getMapsManager().setTempOwnerPlayername(p.getName());
 
-        if (p.getName().equals(ownerName) || p.getName().equals(NostalgiaMaps.getInstance().getMapsManager().getTempOwnerPlayername())) {
+        if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
             if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap() == null) {
-                TextComponent message1 = new TextComponent("§7You're the server owner. " +
-                        "You can now choose a map by clicking here or with §e/map choose <map name>§7.");
-                TextComponent message2 = new TextComponent("§f§nclicking here");
-                TextComponent message3 = new TextComponent("§7 or with §e/maps§7.");
-
-                message2.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder("\n§7Click here to choose a map.\n").create()));
-                p.spigot().sendMessage(message1, message2, message3);
+                TextComponent message = new TextComponent("§7You can download map using the command §e/map add §b<map_url>§7.\n");
+                p.spigot().sendMessage(message);
             } else {
                 p.sendMessage("§7Selected map: §e" + NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName() + "§7.");
+                if (NostalgiaMaps.getInstance().getMapsManager().getMapsPool().size() > 1) {
+                    TextComponent message = new TextComponent("§eYou can choose another by clicking here.\n");
+                    message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new ComponentBuilder("\n§7Click here to choose a map.\n").create()));
+                    p.spigot().sendMessage(message);
+                }
             }
         } else {
             // If player join the server and no map is selected or loaded

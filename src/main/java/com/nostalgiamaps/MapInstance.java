@@ -1,26 +1,27 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps;
 
 import com.nostalgiamaps.utils.Logs;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
+import org.codehaus.plexus.util.FileUtils;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -44,125 +45,228 @@ public class MapInstance {
         this.mapUrl = mapUrl;
         this.loadImmediately = loadImmediately;
 
-        if (loadImmediately) load();
+        if (loadImmediately) downloadAndExtractMap();
     }
 
-    public void load() {
+    private void downloadAndExtractMap() {
         if (this.loadStatus != LoadStatus.READY_TO_LOAD) return;
 
         this.loadStatus = LoadStatus.LOADING;
-        Logs.send("Loading map from url: " + mapUrl, Logs.LogType.INFO, Logs.LogPrivilege.LAMBDA_PLAYER);
-        Logs.send("Loading map from url: " + mapUrl, Logs.LogType.INFO, Logs.LogPrivilege.CONSOLE);
+        Logs.send("Downloading map from url §f" + mapUrl + "§e...", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
 
-        Bukkit.getScheduler().runTask(NostalgiaMaps.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(NostalgiaMaps.getInstance(), () -> {
+            File tempDir = null;
+
             try {
-                CloseableHttpClient httpClient = HttpClients.createDefault();
-                HttpGet request = new HttpGet(mapUrl);
-                HttpResponse response = httpClient.execute(request);
+                tempDir = createTempDirectory();
 
-                InputStream inputStream = response.getEntity().getContent();
-                File tempFile = File.createTempFile("map", ".zip");
-                tempFile.deleteOnExit();
+                // ZIP Download
+                File zipFile = new File(tempDir, "map.zip");
+                downloadFile(mapUrl, zipFile);
+                List<File> extractedFiles = extractZipFile(zipFile, tempDir);
 
-                // Copie du contenu téléchargé dans le fichier temporaire
-                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                // Map validation
+                if (isMinecraftMap(extractedFiles)) {
+                    File mapDir = findMapDirectory(extractedFiles);
 
-                extractZip(tempFile);
+                    if (mapDir != null) {
+                        this.mapDisplayName = mapDir.getName();
+                        this.mapName = formatMapName(this.mapDisplayName);
 
-                inputStream.close();
-                httpClient.close();
+                        // Move map to server directory
+                        moveMapToServerDir(mapDir);
+
+                        validateMapInitialization();
+                        return;
+                    }
+                }
+
+                // Map validation failed
+                Logs.send("Unable to find a valid map in the downloaded archive", Logs.LogType.ERROR, Logs.LogPrivilege.CONSOLE);
             } catch (IOException e) {
-                Logs.send("Error while downloading map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
+                this.loadStatus = LoadStatus.ERROR;
+                e.printStackTrace();
+                Logs.send("Error while downloading map", Logs.LogType.ERROR, Logs.LogPrivilege.CONSOLE);
+            } finally {
+                // Delete temp directory
+                if (tempDir != null) {
+                    try {
+                        FileUtils.deleteDirectory(tempDir);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Logs.send("Error while deleting temp directory", Logs.LogType.ERROR, Logs.LogPrivilege.CONSOLE);
+                    }
+                }
             }
         });
     }
 
-    private void extractZip(File zipFile) {
-        String tmpMapName = null;
-        boolean allFilesExtracted = true;
+    private void validateMapInitialization() {
+        this.loadStatus = LoadStatus.LOADED;
+        Bukkit.getLogger().info("Map loaded");
 
-        try (ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)))) {
-            ZipEntry entry;
-            while ((entry = zipInputStream.getNextEntry()) != null) {
-                if (!entry.isDirectory()) {
-                    String entryName = entry.getName();
-                    File destinationFile = new File("./" + entryName);
+        NostalgiaMaps.getInstance().getMapsManager().addMap(this);
+        createWorld();
+        Logs.send("Start generating map " + mapDisplayName + "..", Logs.LogType.INFO, Logs.LogPrivilege.CONSOLE);
 
-                    // Crée les répertoires parents si nécessaire
-                    if (!destinationFile.getParentFile().exists()) {
-                        destinationFile.getParentFile().mkdirs();
-                    }
+        while (Bukkit.getWorld(mapName) == null);
+        Logs.send("Map " + mapDisplayName + " successfully generated.", Logs.LogType.INFO, Logs.LogPrivilege.CONSOLE);
+        announceNewMap();
+        // If the map is loaded and has a spawn location, teleport all players to the map spawn
+        try {
+            for (Player player : Bukkit.getOnlinePlayers())
+                player.teleport(Bukkit.getWorld(mapName).getSpawnLocation());
+        } catch (Exception ignored) {} // No spawn location
+    }
 
-                    // Copie du fichier extrait dans le répertoire de destination
-                    Files.copy(zipInputStream, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    private String formatMapName(String mapName) {
+        return mapName.toLowerCase().replaceAll("[^a-z0-9_]+", "");
+    }
 
-                    // Si c'est le premier fichier extrait, assigne son nom à la variable tmpMapName
-                    if (tmpMapName == null) {
-                        tmpMapName = entryName;
-                    }
-                }
-                zipInputStream.closeEntry();
+    private File createTempDirectory() throws IOException {
+        File serverDir = Bukkit.getWorldContainer();
+        return Files.createTempDirectory(serverDir.toPath(), "map-download").toFile();
+    }
+
+    private void downloadFile(String url, File outputFile) throws IOException {
+        HttpClient httpClient = HttpClients.createDefault();
+        HttpGet request = new HttpGet(url);
+        HttpResponse response = httpClient.execute(request);
+
+        try (InputStream inputStream = response.getEntity().getContent();
+             FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-        } catch (IOException e) {
-            allFilesExtracted = false;
-            this.loadStatus = LoadStatus.ERROR;
-            Logs.send("Error while extracting map " + mapDisplayName + ".", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-            Logs.send(e.getMessage(), Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-            e.printStackTrace();
-        }
-
-        if (allFilesExtracted) {
-            if (tmpMapName == null) {
-                Logs.send("Unsupported map format.", Logs.LogType.ERROR, Logs.LogPrivilege.OPS);
-                Bukkit.getScheduler().runTaskLaterAsynchronously(NostalgiaMaps.getInstance(), () -> {
-                    Logs.send("Retrying to load map with another configuration..", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                    this.loadStatus = LoadStatus.READY_TO_LOAD;
-                    load();
-                }, 15);
-            } else {
-                this.loadStatus = LoadStatus.LOADED;
-                Logs.send("Got tmpMapName: [" + tmpMapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                this.mapName = tmpMapName.substring(0, tmpMapName.indexOf("/"));
-
-                Logs.send("APPLY Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                //format world name to remove special characters and be compatible with WorldCreator
-                this.mapName = this.mapName.replaceAll("[^a-zA-Z0-9_]", "");
-                Logs.send("APPLIED Format to mapName: [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                this.mapDisplayName = this.mapName;
-                NostalgiaMaps.getInstance().getMapsManager().addMap(this);
-                createWorld();
-                Bukkit.getScheduler().runTaskAsynchronously(NostalgiaMaps.getInstance(), () -> {
-                    while (Bukkit.getWorld(mapName) == null) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    Logs.send("Map " + mapDisplayName + " loaded successfully.", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-                    teleportPlayerIfImmediatelyLoaded();
-                });
-            }
-
         }
     }
 
-    private void createWorld() {
+    private List<File> extractZipFile(File zipFile, File outputDir) throws IOException {
+        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile))) {
+            List<File> extractedFiles = extractZipEntries(zipInputStream, outputDir);
+            zipInputStream.closeEntry();
+            return extractedFiles;
+        }
+    }
+
+    private List<File> extractZipEntries(ZipInputStream zipInputStream, File outputDir) throws IOException {
+        List<File> extractedFiles = new ArrayList<>();
+
+        ZipEntry entry;
+        while ((entry = zipInputStream.getNextEntry()) != null) {
+            // TODO: Find a better way to do this, maybe use a config field to specify if server is running on macOS
+            //  if so, get the map inside the __MACOSX directory
+            if (entry.getName().startsWith("__MACOSX")) { // Ignore __MACOSX directory
+                zipInputStream.closeEntry();
+                continue;
+            }
+
+            File outputFile = new File(outputDir, entry.getName());
+            if (entry.isDirectory()) {
+                FileUtils.forceMkdir(outputFile);
+            } else {
+                try (OutputStream outputStream = new FileOutputStream(outputFile)) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = zipInputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+                }
+            }
+            extractedFiles.add(outputFile);
+            zipInputStream.closeEntry();
+        }
+
+        return extractedFiles;
+    }
+
+
+    private boolean isMinecraftMap(List<File> extractedFiles) {
+        List<String> requiredDirectories = Arrays.asList("advancements", "data", "datapacks", "poi", "region");
+        int foundDirectories = 0;
+
+        for (File file : extractedFiles) {
+            if (file.isDirectory() && requiredDirectories.contains(file.getName())) {
+                foundDirectories++;
+                if (foundDirectories >= 2) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private File findMapDirectory(List<File> extractedFiles) {
+        for (File file : extractedFiles) {
+            if (file.isDirectory() && isPotentialMapDirectory(file)) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private boolean isPotentialMapDirectory(File directory) {
+        List<String> requiredDirectories = Arrays.asList("advancements", "data", "datapacks", "poi", "region");
+        for (String requiredDir : requiredDirectories) {
+            if (new File(directory, requiredDir).exists()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void moveMapToServerDir(File mapDir) throws IOException {
+        File serverDir = Bukkit.getWorldContainer();
+        Path sourcePath = mapDir.toPath();
+        String newMapName = formatMapName(this.mapName);
+        Path targetPath = new File(serverDir, newMapName).toPath();
+
+        if (!mapDir.getName().equals(newMapName)) {
+            Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    public void createWorld() {
         if (this.mapName == null) {
             System.out.println("[DEBUG](MapInstance:createWorld) mapName is null.");
             return;
         }
         // load world into server
         Logs.send("Loading world with name [" + this.mapName + "]", Logs.LogType.INFO, Logs.LogPrivilege.OPS);
-        WorldCreator worldCreator = new WorldCreator(this.mapName);
+        try {
+            new WorldCreator(this.mapName).createWorld();
+        } catch (Exception ignored) {}
     }
 
-    private void teleportPlayerIfImmediatelyLoaded() {
+    private void announceNewMap() {
+        String owner = NostalgiaMaps.getInstance().getConfigManager().getOwnerName();
+        TextComponent click = new TextComponent("§e§l[CLICK HERE]");
+        TextComponent message = new TextComponent(" §r§f to start the map.");
+
+        click.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/maps start " + this.mapName));
+
+        ArrayList<Player> receivers = new ArrayList<>();
+
+        if (owner.equalsIgnoreCase("none"))
+            for (Player player : Bukkit.getOnlinePlayers()) receivers.add(player);
+        else if (owner.equalsIgnoreCase("ops")) {
+            for (OfflinePlayer player : Bukkit.getOperators())
+                if (player.isOnline()) receivers.add(player.getPlayer());
+
+        } else {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(owner);
+            if (player.isOnline()) receivers.add(player.getPlayer());
+        }
+
+        for (Player player : receivers) {
+            player.sendMessage("§e§l[MAPS] §r§fThe map §e" + this.mapDisplayName + " §r§fis ready to be played.");
+            player.spigot().sendMessage(click, message);
+        }
         if (loadImmediately) {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                player.teleport(getWorld().getSpawnLocation());
-            });
+            //TODO: Trigger MapLoadedEvent
         }
     }
 

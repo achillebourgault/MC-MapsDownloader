@@ -1,9 +1,3 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps;
 
 import com.nostalgiamaps.commands.MapsCommand;
@@ -35,6 +29,10 @@ public final class NostalgiaMaps extends JavaPlugin {
         boardManager = new BoardManager();
 
         registerEvents();
+        checkConfiguration();
+    }
+
+    private void checkConfiguration() {
     }
 
     private void registerEvents() {

@@ -1,9 +1,3 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps.manager;
 
 import com.nostalgiamaps.MapInstance;
@@ -69,9 +63,9 @@ public class InventoryManager {
                     if (i % rowLength == 0 && i != 0) startIndex += 9;
                 }
 
-                currentInventory.setItem(41, Item.createItem("§7Current map: §f§l#" + id + " §e" +
+                currentInventory.setItem(40, Item.createItem("§7Current map: §f§l#" + id + " §e" +
                                 NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getDisplayName(),
-                        id, Material.OAK_SIGN, null));
+                        1, Material.OAK_SIGN, null));
                 currentInventory.setItem(49, Item.createItem("§cExit", 1, Material.BARRIER, null));
             }
 

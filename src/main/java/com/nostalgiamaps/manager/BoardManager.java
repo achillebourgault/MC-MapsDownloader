@@ -33,6 +33,8 @@ public class BoardManager {
         }
     }
 
+    // TODO:
+    //  - Display Map Display Name rather than Map Name
     private void createMainMenuBoard() {
         ConfigManager config = NostalgiaMaps.getInstance().getConfigManager();
         String configTitle = config.getScoreboardConfig().getTitle();

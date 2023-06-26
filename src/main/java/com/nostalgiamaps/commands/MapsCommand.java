@@ -1,9 +1,3 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps.commands;
 
 import com.nostalgiamaps.MapInstance;
@@ -13,6 +7,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,6 +15,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MapsCommand implements CommandExecutor {
@@ -45,10 +41,6 @@ public class MapsCommand implements CommandExecutor {
                                     args.length == 3 && (args[2].equalsIgnoreCase("true") ||
                                             args[2].equalsIgnoreCase("false")) && Boolean.parseBoolean(args[2])
                             );
-//      TODO:                      NostalgiaMaps.getInstance().getMapsManager().addMap(new MapInstance(args[1],
-//                                    args.length == 3 && (args[2].equalsIgnoreCase("true") ||
-//                                            args[2].equalsIgnoreCase("false")) && Boolean.parseBoolean(args[2])
-//                            ));
                         } else {
                             p.sendMessage("§f§lERROR  §r§cUsage: /maps add <mapUrl> [optional: true|false]");
                         }
@@ -76,7 +68,8 @@ public class MapsCommand implements CommandExecutor {
                                 p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
                                 return true;
                             }
-                            NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]).load();
+                            // TODO: !!!
+                            // NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]).load(false);
                         } else {
                             p.sendMessage("§f§lERROR  §r§cUsage: /maps remove <mapName>");
                         }
@@ -130,6 +123,26 @@ public class MapsCommand implements CommandExecutor {
                     }
                 } else if (args[0].equalsIgnoreCase("info")) {
                     sendPluginInfo(p);
+                } else if (args[0].equalsIgnoreCase("start")) {
+                    if (args.length == 1) {
+                        p.sendMessage("§f§lERROR  §r§cUsage: /maps start <mapName>");
+                    } else {
+                        if (NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1]) == null) {
+                            p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' doesn't exist.");
+                            return true;
+                        }
+                        NostalgiaMaps.getInstance().getMapsManager().setCurrentMap(
+                                NostalgiaMaps.getInstance().getMapsManager().getMapByName(args[1])
+                        );
+                        if (NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getWorld() == null) {
+                            p.sendMessage("§f§lERROR  §r§cMap '"+args[1]+"' is not loaded.");
+                            p.sendMessage("§e§nINFO  §r§eLoading map...");
+                            NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().createWorld();
+                            return true;
+                        }
+                        for (Player player : Bukkit.getOnlinePlayers())
+                            player.teleport(NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getWorld().getSpawnLocation());
+                    }
                 } else {
                     p.sendMessage("§f§lERROR  §r§cUnknown command. Type /maps info for help.");
                 }
@@ -138,6 +151,7 @@ public class MapsCommand implements CommandExecutor {
         return true;
     }
 
+    // TODO: Replace links
     private void sendPluginInfo(Player p) {
         TextComponent message = new TextComponent("§e§nNostalgiaMaps §r§fv" +
                 NostalgiaMaps.getInstance().getDescription().getVersion());
@@ -166,10 +180,17 @@ public class MapsCommand implements CommandExecutor {
     public static TabCompleter getTabCompleter() {
         return (sender, cmd, alias, args) -> {
             if (args.length == 1) {
-                return Arrays.asList("add", "remove", "info", "load", "vote");
+                return Arrays.asList("add", "remove", "info", "load", "vote", "start");
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("vote"))
                     return Arrays.asList("start", "stop");
+                else if (args[0].equalsIgnoreCase("start")) {
+                    ArrayList<String> mapNames = new ArrayList<>();
+
+                    for (MapInstance map : NostalgiaMaps.getInstance().getMapsManager().getMapsPool())
+                        mapNames.add(map.getName());
+                    return mapNames;
+                }
             } else if (args.length == 3) {
                 // Handle the optional argument for the add command
                 if (args[0].equalsIgnoreCase("add"))

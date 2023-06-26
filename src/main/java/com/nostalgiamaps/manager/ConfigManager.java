@@ -1,9 +1,3 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps.manager;
 
 import com.nostalgiamaps.NostalgiaMaps;

@@ -1,11 +1,7 @@
-/*********************************************************\
-*   @Author: AchilleBourgault                             *
-*   @Github: https://github.com/achillebourgault          *
-*   @Project: NostalgiaMaps                               *
-\*********************************************************/
-
 package com.nostalgiamaps.events;
 
+import com.nostalgiamaps.NostalgiaMaps;
+import com.nostalgiamaps.manager.MapsManager;
 import com.nostalgiamaps.utils.Static;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -29,10 +25,23 @@ public class InventoryEvents implements Listener {
 
         if (item.getType().equals(Material.FILLED_MAP)) {
             p.closeInventory();
-            String mapName = item.getItemMeta().getDisplayName().split(" ")[1];
+            String mapName = item.getItemMeta().getDisplayName().split(" ", 2)[1];
+            mapName = mapName.replaceAll("[^a-zA-Z0-9_]", "");
+
             p.sendMessage("§eYou have selected the map §6[" + mapName + "]§e.");
 
-            p.teleport(Bukkit.getWorld(mapName).getSpawnLocation());
+            if (NostalgiaMaps.getInstance().getMapsManager().isPlayerHasPrivilege(p)) {
+                NostalgiaMaps.getInstance().getMapsManager().setCurrentMap(
+                        NostalgiaMaps.getInstance().getMapsManager().getMapByName(mapName)
+                );
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.teleport(NostalgiaMaps.getInstance().getMapsManager().getCurrentMap().getWorld().getSpawnLocation());
+                    player.sendMessage("§7You are being teleported to the map §e" + NostalgiaMaps.getInstance().getMapsManager()
+                            .getCurrentMap().getDisplayName() + "§7.");
+                }
+            } else {
+                //TODO: Voting system
+            }
         } else if (item.getType().equals(Material.BARRIER)) {
             p.closeInventory();
             p.performCommand("map add");
